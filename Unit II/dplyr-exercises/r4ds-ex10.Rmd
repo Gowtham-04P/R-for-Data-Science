@@ -1,0 +1,107 @@
+---
+title: "Add New Variables with mutate() Exercises"
+author: "Sathish G"
+date: "30/09/2019"
+output: html_document
+---
+
+## load libraries and datasets
+
+```{r include=FALSE}
+library(tidyverse)
+library(nycflights13)
+```
+
+
+## mutate() Exercises
+
+1. Currently dep_time and sched_dep_time are convenient to look at, but hard to compute with because they're not really continuous numbers. Convert them to a more convenient representation of number of minutes since midnight.
+
+Set a duplicate data set to work with
+
+```{r}
+flights_sml <- select(flights,year:day,dep_time,sched_dep_time)
+flights_sml
+```
+
+Create time variables denoting number of minutes since midnight for variables dep_time and sched_dep_time
+
+```{r}
+flights_sml <- mutate(flights_sml,
+                      dep_time_minutes = (dep_time %/% 100 * 60 + dep_time %% 100) %% 1440,
+                      sched_dep_time_minutes = (sched_dep_time %/% 100 * 60 + sched_dep_time %% 100) %% 1440
+                        )
+flights_sml
+```
+
+2. Compare air_time with arr_time - dep_time. What do you expect to see ? What do you see? What do you need to do to fix it?
+
+```{r}
+
+timeToMinutes <- function(timeInhhmm){
+  return (timeInhhmm %/% 100 * 60 + timeInhhmm %% 100) %% 1440
+}
+
+flights_sml <- select(flights,air_time,arr_time,dep_time)
+flights_sml <- mutate(flights_sml,
+                      arr_time_minutes = timeToMinutes(arr_time),
+                      dep_time_minutes = timeToMinutes(dep_time),
+                      diff = arr_time_minutes - dep_time_minutes)
+flights_sml
+```
+
+I see that the air_time and (arr_time - dep_time) difference is different.
+
+3. Compare dep_time, sched_dep_time, and dep_delay. How would you expect those three numbers to be related?
+
+```{r}
+flights_dep <- select(flights,dep_time,sched_dep_time,dep_delay)
+flights_dep <- mutate(flights_dep,cal_dep_delay = timeToMinutes(dep_time) -timeToMinutes(sched_dep_time))
+flights_dep
+```
+
+4. Find the 10 most delayed flights using a ranking function. How do you want to handle ties ? Carefully read the documentation for min_rank().
+
+```{r}
+arrange(flights,desc(dep_delay)) %>% mutate(rank = min_rank(desc(dep_delay))) %>% head(10) %>% select(rank,dep_delay)
+```
+
+
+5. What does 1:3 + 1:10 return ? why ?
+
+```{r}
+1:3 + 1:10
+```
+
+This is because, when doing arithmetic between two vectors, the vectors are supposed to be of same length. but it doesn't mean that we made any error.
+
+6. What trignometric functions does R provide ?
+
+```{r}
+help("Trig")
+```
+
+cos(x)
+sin(x)
+tan(x)
+acos(x)
+asin(x)
+atan(x)
+atan2(y,x)
+cospi(x)
+sinpi(x)
+tanpi(x)
+
+Where x & y -> numeric or complex vectors.
+
+Examples given in documentation:
+
+```{r}
+x <- seq(-3, 7, by = 1/8)
+tx <- cbind(x, cos(pi*x), cospi(x), sin(pi*x), sinpi(x),
+               tan(pi*x), tanpi(x), deparse.level=2)
+op <- options(digits = 4, width = 90) # for nice formatting
+head(tx)
+tx[ (x %% 1) %in% c(0, 0.5) ,]
+options(op)
+```

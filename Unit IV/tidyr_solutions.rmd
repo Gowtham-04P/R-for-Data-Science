@@ -1,0 +1,258 @@
+---
+title: "chapter_9_exercises_solutions.html"
+author: "SathishG"
+date: "25 January 2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+##Exercises 9.1
+
+`1. Using prose, describe how the variables and observations are organized in each of the sample tables.`
+
+Load the library core tidyverse
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+table1
+```
+
+`table1` has every row for each [country, year] pair.
+
+```{r}
+table2
+```
+
+`table2` has every row for each [country,year,type] pairs.
+
+```{r}
+table3
+```
+
+`table3` has every row for each [country, year] pair besides rate column has values in the format `cases/population`
+
+```{r}
+table4a
+```
+
+```{r}
+table4b
+```
+
+    table4a and table4b are the table of values split and stored from the preivous three tables. The data for each country and year has been split into two tables based on cases and population.
+
+`2. Compute the rate for table2, and table4a + table4b. You will need to perform four operations:
+  a. Extract the number of TB cases per country per year.
+  
+```{r}
+table2
+```
+  
+```{r}
+cases_table <- table2 %>% filter(type=="cases") %>% rename("cases" = "count") 
+cases_table
+```
+  
+  
+  b. Extract the matching population per country per year.
+  
+```{r}
+population_table <- table2 %>% filter(type == "population") %>% rename("population" = "count")
+population_table
+```
+  
+  
+  c. Divide cases by population, and multiply by 10,000.
+  
+```{r}
+
+new_table <- tibble(country = cases_table$country,year = cases_table$year,cases = cases_table$cases,population = population_table$population)
+
+new_table <- new_table %>% mutate(case_pop_rate = cases/population * 10000)
+
+new_table
+
+```
+  
+  
+  d. Store back in the appropriate place.
+  
+  Which representation is easiest to work with ? Which is hardest ? Why ?`
+  
+      table4a + table4b is easiest to work with as table2 has to be first step down to table4a and table4b then we can find the rate.
+
+`3. Re-create the plot showing change in cases over time using table2 instead of table1. What do you need to do first ?`
+
+```{r}
+table2
+```
+
+```{r}
+cases_tab <- filter(table2,type == "cases")
+cases_tab
+```
+
+```{r}
+library(ggplot2)
+ggplot(cases_tab,aes(year,count)) + geom_line(aes(group = country), color = "grey50") + geom_point(aes(color = country))
+```
+
+
+###Spreading and Gathering
+
+`1. Why are gather() and spread() not perfectly symmetrical ? Carefully consider the following example:`
+
+```{r}
+stocks <- tibble(
+  year = c(2015,2015,2016,2016),
+  half = c(1,2,1,2),
+  return = c(1.88,0.59,0.92,0.17)
+)
+stocks
+stocks %>% spread(key = year,value = return, convert = TRUE)
+stocks %>% spread(key = year,value = return) %>% gather("year","return",`2015`,`2016`, convert = TRUE)
+```
+
+`2. Why does this code fail?`
+
+```{r}
+#table4a %>% gather(1999,2000,key = "year", value = "cases")
+```
+```{r}
+table4a %>% gather(`1999`,`2000`,key = "year", value = "cases")
+```
+
+`3. Why does spreading this tibble fail ? How could you add a new column to fix the problem?`
+
+```{r}
+people <- tribble(
+  ~name,             ~key,    ~value,
+  #-----------------|--------|------
+  "Phillip Woods",   "age",       45,
+  "Phillip Woods",   "height",   186,
+  "Phillip Woods",   "age",       50,
+  "Jessica Cordero", "age",       37,
+  "Jessica Cordero", "height",   156
+)
+people
+```
+
+```{r}
+#people %>% spread(key = key, value = value)
+```
+```{r}
+people_unique <- people %>% filter((name != "Phillip Woods"| value != 50))
+people_unique
+people_unique %>% spread(key, value)
+```
+
+
+`4. Tidy the simple tibble below. Do you need to spread or gather it? What are the variables?`
+
+```{r}
+preg <- tribble(
+  ~pregnant, ~male, ~female,
+  "yes",     NA,    10,
+  "no",      20,    12
+)
+preg
+```
+
+```{r}
+preg %>% gather("male","female",key = "type", value = "count") %>% spread(key = pregnant, value = count)
+```
+
+
+# Separating and Pull
+
+`1. What do the extra and fill arguments do in separate()? Experiment with the various options for the following two toy datasets.`
+
+```{r}
+tib1 <- tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"))
+
+tib2 <- tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"))
+```
+
+```{r}
+tib1 
+```
+
+```{r}
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"), extra = "warn")
+```
+
+```{r}
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"), extra = "merge")
+```
+
+```{r}
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"), extra = "drop")
+```
+
+```{r}
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"))
+```
+
+```{r}
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"), fill = "warn")
+```
+
+```{r}
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"), fill = "left")
+```
+
+```{r}
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"), fill = "right")
+```
+
+`2. Both unite() and separate() have a remove argument. What does it do ? Why would you set it to FALSE?`
+
+    remove argument , if set to TRUE remove input column from output data frame
+
+```{r}
+table5
+```
+
+```{r}
+table5 %>% unite(new, century, year, sep = "", remove = TRUE)
+```
+
+
+
+    remove argument, if set to FALSE will keep the input columns as it is in the output data frame
+    
+```{r}
+table5 %>% unite(new,century, year, sep = "", remove = FALSE)
+```
+
+
+# Missing Values
+
+
+**Exercises:**
+
+`1. Compare and contrast the fill arguments to spread() and complete()`
+
+```{r}
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"), fill = "right")
+```
+
+```{r}
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three")) %>% complete(one,two,three)
+```
+

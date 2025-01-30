@@ -1,0 +1,67 @@
+---
+title: 'r4ds-ex8-Data Transformation with dplyr : Arrange Rows with arrange()'
+author: "Sathish G"
+date: "23/08/2019"
+output: html_document
+---
+```{r}
+# load the tidyverse library
+library(tidyverse)
+# load the nycflights13 dataset
+library(nycflights13)
+```
+
+
+1. How could you use arrange() to sort all missing values to the start ? (Hint: use is.na())
+
+```{r}
+df <- tibble(x = c(5,2,NA,NA,3,8,7,NA,1,1,NA))
+arrange(df,x)
+```
+
+```{r}
+df <- tibble(x = c(5,2,NA,NA,3,8,7,NA,1,1,NA))
+arrange(df,desc(is.na(x)))
+```
+
+2. Sort flights to find the most delayed flights. Find the flights that left earliest.
+
+2.1 Sort flights to find the most delayed flights.
+
+```{r}
+arrange(flights,desc(dep_delay))
+```
+
+2.2 Find the flights that left earliest.
+
+```{r}
+filter(flights,dep_delay<0) %>% arrange()
+```
+
+
+3. Sort flights to find the fastest flights.
+
+```{r}
+arrange(flights,air_time)
+```
+
+`because less air_time of a flight indicates that the flight travels less time but it doesn't tell that it is faster than other flights.so, to get speed, let us divide distance by air_time`
+
+```{r}
+arrange(flights,desc(distance/air_time*60))
+```
+
+
+4. Which flights traveled the longest ? Which traveled the shortest ?
+
+to find the flights that traveled longest distance
+
+```{r}
+arrange(flights,desc(distance));
+```
+
+to find the flights that traveled shortest distance
+
+```{r}
+arrange(flights,distance)
+```

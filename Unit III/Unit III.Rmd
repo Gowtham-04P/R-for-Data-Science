@@ -1,0 +1,296 @@
+---
+title: "Untitled"
+author: "Suganya"
+date: '2022-10-01'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+A data frame is simply a matrix, but can have columns with different types (numeric, character, logical). 
+
+Rows are observations (individuals) and columns are variables. 
+
+A tibble is a subtype of a data frame that is optimized for data science applications
+
+Tibbles have a refined print method that shows only the first 10 rows, and all the columns that fit on screen.
+
+This makes it much easier to work with large data. 
+
+```{r}
+library(tidyverse) 
+#install.packages("tibble")
+library(tibble)
+
+```
+
+Force a data frame to a tibble
+```{r}
+as_tibble(iris)
+
+```
+```{r}
+tibble( x = 1:5, y = 1, z = x ^ 2 + y ) 
+
+```
+
+It’s possible for a tibble to have column names that are not valid R variable names
+```{r}
+tb <- tibble( `:)` = "smile", ` ` = "space", `2000` = "number" )
+```
+
+There are two main differences in the usage of a tibble versus a classic data.frame: printing and subsetting.
+
+Printing :Tibbles have a refined print method that shows only the first 10 rows, and all the columns that fit on
+
+screen.
+
+```{r}
+as_tibble(iris)
+```
+
+Subsetting :If you want to pull out a single variable, you need some new tools, $ and [[. 
+
+[[ can extract by name or position; 
+
+$ only extracts by name but is a little less typing
+
+Compared to a data.frame, tibbles are more strict: 
+
+they never do partial matching, and they will generate a warning if the column to access does not exist.
+
+```{r}
+tb$`2000`
+tb[["2000"]]
+```
+Some older functions don’t work with tibbles. 
+
+Use as.data.frame() to turn a tibble back to a data.frame
+
+```{r}
+class(as.data.frame(tb))
+```
+ 
+ This chapter concern with how to read plain-text rectangular files into R
+
+
+```{r}
+library(tidyverse)
+#install.packages(“readr”)
+library(readr)
+
+```
+
+Most of readr’s functions are concerned with turning flat files into data frames
+
+readr’s functions 
+
+read_csv() reads comma-delimited files
+read_csv2() reads semicolon-separated files 
+read_tsv() reads tab-delimited files
+read_delim() reads in files with any delimiter
+
+read_fwf() reads fixed-width files. 
+
+Specify fields either by their widths with fwf_widths() or their position with fwf_positions(). 
+
+read_table() reads a common variation of fixed-width files where columns are separated by white space. 
+
+read_log() reads Apache style log files. 
+
+The first argument to read_csv() is the path to the file to read:
+
+heights <- read_csv("data/heights.csv") 
+
+Prints out a column specification that gives the name and type of each column
+
+Inline CSV file--for creating reproducible examples
+
+```{r}
+read_csv("a,b,c 
+				1,2,3 
+				4,5,6")
+
+```
+
+skip = n to skip the first n lines; 
+
+or use comment = "#" to drop all lines that start with (e.g.) #:
+
+```{r}
+read_csv("The first line of metadata 
+				 The second line of metadata  
+				x,y,z  
+				1,2,3", skip = 2)
+```
+
+```{r}
+read_csv("# A comment I want to skip  
+				x,y,z  
+				1,2,3", comment = "#")
+
+```
+
+Use col_names = FALSE to tell read_csv() not to treat the first row as headings, and instead label them sequentially
+
+from X1 to Xn: 
+
+```{r}
+read_csv("1,2,3\n4,5,6", col_names = FALSE)
+```
+
+
+Pass col_names a character vector,  which will be used as the column names:
+
+```{r}
+ read_csv("1,2,3\n4,5,6", col_names = c("x", "y", "z"))
+```
+
+To represent missing values in file:
+
+```{r}
+read_csv("a,b,c\n1,2,.", na = ".")
+```
+
+There are a few good reasons to favor readr functions over the base equivalents: 
+
+They are typically much faster (~10x) than their base equivalents.
+
+They produce tibbles, and they don’t convert character vectors to factors, use row names, or munge the column names.
+
+These are common sources of frustration with the base R functions.
+
+They are more reproducible. Base R functions inherit some behavior from your operating system and environment
+
+variables, so import code that works on your computer might not work on someone else’s.
+
+
+## Parsing a Vector
+
+These functions take a character vector and return a more specialized vector like a logical, integer, or date:
+
+```{r}
+str(parse_logical(c("TRUE", "FALSE", "NA"))) 
+
+```
+
+```{r}
+str(parse_integer(c("1", "2", "3")))
+```
+
+ 
+```{r}
+ str(parse_date(c("2010-01-01", "1979-10-14"))) 
+```
+
+
+These functions take a character vector and return a more specialized vector like a logical, integer, or date:
+
+```{r}
+str(parse_logical(c("TRUE", "FALSE", "NA"))) 
+```
+
+
+
+```{r}
+str(parse_integer(c("1", "2", "3")))
+```
+
+ 
+ 
+```{r}
+str(parse_date(c("2010-01-01", "1979-10-14"))) 
+```
+ 
+na argument specifies which strings should be treated as missing:
+
+```{r}
+parse_integer(c("1", "231", ".", "456"), na = ".") 
+```
+
+If parsing fails, get a warning &  the failures will be missing in the output
+
+```{r}
+x <- parse_integer(c("123", "345", "abc", "123.45")) 
+```
+
+If there are many parsing failures, use problems() to get the complete set. 
+
+This returns a tibble, which you can then manipulate with dplyr:
+```{r}
+problems(x) 
+
+```
+
+There are eight particularly important parsers:
+
+parse_logical() and parse_integer() parse logicals and integers, respectively. 
+
+parse_double() is a strict numeric parser, and parse_number() is a flexible numeric parser. 
+
+parse_character()  to parse characters
+
+parse_factor() creates factors
+
+parse_datetime(), parse_date(), and parse_time() allows to parse various date and time specifications.  
+
+
+
+Three problems to parse a number, 
+
+People write numbers differently in different parts of the world. For example, some countries use . in between the
+
+integer and fractional parts of a real number, while others use ,. 
+
+Numbers are often surrounded by other characters that provide some context, like “$1000” or “10%”.
+
+
+Numbers often contain “grouping” characters to make them easier to read, like “1,000,000”, and these grouping
+
+characters vary around the world. 
+
+To address the first problem, readr has the notion of a “locale,” and  setting the decimal_mark argument:
+
+```{r}
+parse_double("1.23") 
+
+```
+
+```{r}
+parse_double("1,23", locale = locale(decimal_mark = ",")) 
+```
+
+
+parse_number() addresses the second problem: it ignores nonnumeric characters before and after the number
+
+```{r}
+parse_number("$100")
+ #> [1] 100
+ parse_number("20%")
+ #> [1] 20
+ parse_number("It cost $123.45")
+ #> [1] 123
+```
+
+
+The final problem is addressed by the combination of parse_num ber() and the locale as parse_number() will ignore
+
+the “grouping mark”:
+
+```{r}
+# Used in America 
+parse_number("$123,456,789") 
+#> [1] 1.23e+08
+# Used in many parts of Europe
+ parse_number(  "123.456.789",  locale = locale(grouping_mark = ".") ) 
+#> [1] 1.23e+08
+# Used in Switzerland 
+parse_number(  "123'456'789",  locale = locale(grouping_mark = "'") )
+ #> [1] 1.23e+08
+
+
+```
+
+

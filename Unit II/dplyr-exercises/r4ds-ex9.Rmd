@@ -1,0 +1,60 @@
+---
+title: "r4ds-ex9-Select Columns with select() Exercises"
+author: "Sathish G"
+date: "30/09/2019"
+output: html_document
+---
+
+## load the libraries and datasets
+
+```{r include=FALSE}
+library(tidyverse)
+library(nycflights13)
+```
+
+
+## select() Exercises
+
+1. Brainstorm as many ways as possible to select dep_time, dep_delay, arr_time, and arr_delay from flights.
+
+```{r}
+select(flights,dep_time,dep_delay,arr_time,arr_delay)
+```
+
+```{r}
+select(flights,starts_with("dep"),starts_with("arr"))
+```
+
+
+2. What happens if you include the name of a variable multiple times in a select() call ?
+
+```{r}
+select(flights,arr_time,arr_time,dep_time,arr_time)
+```
+
+
+3. What does the one_of() function do ? Why might it be helpful in conjunction with this vector ?
+
+vars <- c("year","month","day","dep_delay","arr_delay")
+
+```{r}
+vars <- c("year","month","day","dep_delay","arr_delay")
+select(flights,one_of(vars))
+```
+
+
+4. Does the result of running the following code surprise you ? How do the select helpers deal with case by default ? How can you change that default ?
+
+select (flights,contains("TIME"))
+
+```{r}
+select (flights,contains("TIME"))
+```
+
+```{r}
+select(flights,contains("TIME",ignore.case = FALSE))
+```
+
+```{r}
+select(flights,contains("TIME",ignore.case = TRUE))
+```

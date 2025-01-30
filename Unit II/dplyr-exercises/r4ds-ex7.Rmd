@@ -1,0 +1,179 @@
+---
+title: "r4ds-ex7"
+author: "Sathish G"
+date: "30/08/2019"
+output: html_document
+---
+
+# Loading Data
+
+Before starting the exercises load the packages and data sets that are needed to complete the exercises. Here, you can either load `dplyr` package directly or `tidyverse`
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+### Loading Data Sets
+
+```{r}
+library(nycflights13)
+```
+
+# filter() Exercises
+
+1. Find all flights that:
+    a. Had an arrival delay of two or more hours
+    
+```{r}
+names(flights)
+```
+    
+```{r}
+filter(flights,arr_delay>=120)
+```
+    
+    
+    b. Flew to Houston (IAH or HOU)
+    
+```{r}
+names(flights)
+```
+    
+```{r}
+flights %>% select(dest) %>% group_by(dest)
+```
+    
+    
+```{r}
+filter(flights, dest=="IAH"| dest=="HOU")
+```
+    
+    c. Were operated by United, American, or Delta
+    
+```{r}
+names(flights)
+```
+    
+```{r}
+head(flights$carrier)
+```
+    
+```{r}
+filter(flights,carrier == "UA" | carrier == "AA" | carrier == "DL")
+```
+    
+    
+    d. Departed in summer (July, August, and September)
+    
+```{r}
+names(flights)
+```
+    
+```{r}
+head(flights$month)
+```
+    
+```{r}
+filter(flights,month %in% c(7,8,9))
+```
+    
+    
+    e. Arrived more than two hours late, but didn't leave late
+    
+```{r}
+names(flights)
+```
+    
+```{r}
+filter(flights,arr_delay>120, dep_delay<=0)
+```
+    
+    f. Were delayed by at least an hour, but made up over 30 minutes in flight
+    
+```{r}
+filter(flights,dep_delay>=60 & dep_delay - arr_delay>30)
+```
+    
+    g. Departed between midnight and 6 a.m. (inclusive)
+    
+```{r}
+names(flights)
+```
+    
+```{r}
+filter(flights,dep_time==2400 | dep_time<=600)
+```
+
+
+2. Another useful dplyr filtering helper is between(). What does it do? Can you use it to simplify the code needed to answer the previous challenges?
+
+```{r}
+filter(flights,between(month,7,9))
+```
+
+
+```{r}
+filter(flights,between(dep_time,0,360))
+```
+
+
+3. How many flights have a missing dep_time? What other variables are missing? What might these rows represent ?
+
+Answering 3.1 Question `How many flights have a missing dep_time ?`
+
+```{r}
+filter(flights,is.na(dep_time))
+```
+
+```{r}
+filter(flights,is.na(dep_time)) %>% count()
+```
+
+Answering 3.2 Question `What other variables are missing ?`
+
+```{r}
+filter_all(flights,any_vars(is.na(.)))
+```
+
+`dep_delay and arr_time are the other variables which has missing values (NA's)`
+
+4. Why is NA ^ 0 not missing ? Why is NA | TRUE not missing ? Why is FALSE & NA not missing? Can you figure out the general rule? (NA * 0 is a tricky counterexample!)
+
+4.1 Why is NA ^ 0 not missing ?
+
+because, mathematically speaking, anything power 0 gives 1.
+
+```{r}
+NA ^ 0
+```
+
+4.2 Why is NA | TRUE not missing ?
+
+because, | requires any one condition to be TRUE to yeild the result TRUE.
+
+```{r}
+NA | TRUE
+```
+
+whereas NA | NA will yield the result NA, as we don't know either one of the condition to be TRUE.
+
+```{r}
+NA | NA
+```
+
+4.3 Why is FALSE & NA not missing ?
+
+as & results in FALSE when one condition is FALSE
+
+```{r}
+NA & FALSE
+```
+
+4.4 Can you figure out the general rule ?
+
+```{r}
+NA * 0
+```
+
+NA represents unknown value. As the value of NA is unknown, with one unknown value in some expressions, it is harder to predict the results for those expressions.

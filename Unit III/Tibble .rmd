@@ -1,0 +1,209 @@
+---
+title: "Tibble and Solutions"
+author: "Suganya"
+date: '2022-09-16'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Tibbles with tibble
+
+```{r}
+library(tidyverse)
+```
+
+Creating Tibbles
+```{r}
+as_tibble(iris)
+```
+```{r}
+tibble(
+ x = 1:5,
+ y = 1,
+ z = x ^ 2 + y
+)
+
+```
+
+```{r}
+tb <- tibble(
+ `:)` = "smile",
+ ` ` = "space",
+ `2000` = "number"
+)
+tb
+```
+Tibbles Versus data.frame
+
+There are two main differences in the usage of a tibble versus a clas‐
+sic data.frame: printing and subsetting.
+
+Printing
+Tibbles have a refined print method that shows only the first 10
+rows, and all the columns that fit on screen
+
+```{r}
+tibble(
+ a = lubridate::now() + runif(1e3) * 86400,
+ b = lubridate::today() + runif(1e3) * 30,
+ c = 1:1e3,
+ d = runif(1e3),
+ e = sample(letters, 1e3, replace = TRUE)
+)
+```
+
+Subsetting
+
+If you want to pull out a single variable, you need some new
+tools, $ and [[. [[ can extract by name or position; $ only extracts
+by name but is a little less typing:
+
+```{r}
+df <- tibble(
+ x = runif(5),
+ y = rnorm(5)
+)
+
+```
+
+```{r}
+df$x
+df[["x"]]
+df[[1]]
+
+```
+
+
+Exercises
+
+1. How can you tell if an object is a tibble? (Hint: try printing
+mtcars, which is a regular data frame.)
+
+```{r}
+class(mtcars)
+```
+
+
+2 – Compare and contrast the following operations on a data.frame and equivalent tibble. What is different? Why might the default data frame behaviours cause you frustration?
+
+Creating tibble in R is pretty much the same as creating a data.frame object.
+
+```{r}
+df <- data.frame(abc = 1, xyz = "a")
+tdf <- tibble(abc = 1, xyz = "a")
+```
+
+```{r}
+str(df)
+str(tdf)
+```
+If you have the name of a variable stored in an object, e.g., var <- "mpg", how can you extract the reference variable from a tibble?
+
+```{r}
+tibble_mtcars <- as.tibble(mtcars)
+var <- 'mpg'
+tibble_mtcars[var]
+```
+
+
+Practice referring to nonsyntactic names in the following data
+frame by:
+a. Extracting the variable called 1.
+b. Plotting a scatterplot of 1 versus 2.
+c. Creating a new column called 3, which is 2 divided by 1.
+d. Renaming the columns to one, two, and three:
+annoying <- tibble(
+ `1` = 1:10,
+ `2` = `1` * 2 + rnorm(length(`1`))
+)
+
+```{r}
+annoying <- tibble(
+  `1` = 1:10,
+  `2` = `1` * 2 + rnorm(length(`1`))
+)
+```
+
+```{r}
+annoying$`1`
+```
+
+```{r}
+annoying %>% ggplot() +
+  geom_point(mapping = aes(x = `1`, y = `2`))
+```
+
+```{r}
+annoying$`3` <- annoying$`2` / annoying$`1`
+annoying
+```
+
+```{r}
+annoying %>% rename(one = `1`, two = `2`, three = `3`)
+```
+
+
+What does tibble::enframe() do? When might you use it?
+
+```{r}
+x <- c(Joe = 24, May = 33, Jack = 55)
+enframe(x, name = 'Name', value = 'Age')
+```
+6 – What option controls how many additional column names are printed at the footer of a tibble?
+
+By default, information of all remaining columns are printed at the footer. To limit the number of additional column information, we can use the argument n_extra. 
+
+```{r}
+print(nycflights13::flights, n_extra = 2)
+```
+
+What function would you use to read a file where fields are separated with “|”?
+
+```{r}
+read_delim("a|b|c\n1|2|3\n4|5|6", delim = "|")
+```
+
+
+
+Apart from file, skip, and comment, what other arguments do read_csv() and read_tsv() have in common?
+
+read_csv() and read_tsv() have the same arguments. They only difference is that one is comma delimited, and the 
+
+other is tab delimited.
+
+3 – What are the most important arguments to read_fwf()?
+
+The most important argument is col_positions, which defines the column positions.
+
+4 – Sometimes strings in a CSV file contain commas. To prevent them from causing problems they need to be surrounded by a quoting character, like " or '. By convention, read_csv() assumes that the quoting character will be ", and if you want to change it you’ll need to use read_delim() instead. What arguments do you need to specify to read the following text into a data frame?
+
+```{r}
+read_csv("x,y\n1,'a,b'", quote = "'")
+```
+
+5 – Identify what is wrong with each of the following inline CSV files. What happens when you run the code?
+
+read_csv("a,b\n1,2,3\n4,5,6")
+
+Only two columns names are provided, so the values in the last column are dropped.
+
+read_csv("a,b,c\n1,2\n1,2,3,4")
+
+Only three column names are provided. The value in the last column in the last row is dropped, and NA is coerced in the third column of second row.
+
+read_csv("a,b\n\"1")
+
+The open quote \" is dropped because there is no paired close quote. There is only one value in the second row, so NA is coerced in the second column
+
+read_csv("a,b\n1,2\na,b")
+
+Since the second rows are strings, the entire columns are coerced into strings.
+
+read_csv("a;b\n1;3")
+
+read_csv() looks for commas, not semi-colons. Everything is treated as one column name and one value.
+
+

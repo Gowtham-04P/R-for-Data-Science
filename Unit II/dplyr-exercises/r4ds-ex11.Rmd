@@ -1,0 +1,116 @@
+---
+title: "r4ds-ex11-Grouped Summaries with summarize() Exercises"
+author: "Sathish G"
+date: "01/10/2019"
+output: html_document
+---
+
+## load libraries and datasets
+
+```{r include=FALSE}
+library(tidyverse)
+library(nycflights13)
+```
+
+
+## summarise() Exercises
+
+1. Brainstorm at least 5 different ways to assess the typical delay characteristics of a group of flights. Consider the following scenarios:
+    a. A flight is 15 minutes early 50% of the time, and 15 minutes late 50% of the time
+    
+```{r}
+not_cancelled <- flights %>% filter(!is.na(dep_delay), !is.na(arr_delay))
+
+not_cancelled %>% group_by(tailnum) %>% summarise(delay_perc = mean(arr_delay == 15)) %>% filter(delay_perc == 0.50)
+
+not_cancelled %>% group_by(tailnum) %>% summarise(delay_perc = mean(dep_delay == -15)) %>% filter(delay_perc == 0.50)
+
+```
+    
+    
+    b. A flight is always 10 minutes late
+    
+```{r}
+not_cancelled %>% group_by(tailnum) %>% summarise(delay_perc = mean(dep_delay == -10)) %>% filter(delay_perc == 1.0)
+```
+    
+    
+    c. A flight is 30 minutes early 50% of the time, and 30 minutes late 50% of the time.
+    
+```{r}
+not_cancelled %>% group_by(tailnum) %>% summarise(delay_perc = mean(dep_delay == 30)) %>% filter(delay_perc == 0.50)
+
+not_cancelled %>% group_by(tailnum) %>% summarise(delay_perc = mean(arr_delay == 30)) %>% filter(delay_perc == 0.50)
+```
+    
+    
+    d. 99% of the time a flight is on time. 1% of the time it's 2 hours late.
+    
+```{r}
+not_cancelled %>% group_by(tailnum) %>% summarise(delay_perc = mean(dep_delay == 120)) %>% filter(delay_perc == 0.01)
+```
+    
+    
+    Which is more important: arrival delay or departure delay ?
+    
+    both arrival delay as well as departure delay is important depends on the situation or the question been asked.
+    
+2. Come up with another approach that will give you the same output as not_cancelled %>% count(dest) and not_cancelled %>% count(tailnum,wt = distance) (without using count())
+
+```{r}
+not_cancelled %>% count(dest)
+```
+
+
+```{r}
+not_cancelled %>% group_by(dest) %>% summarise(n = n())
+```
+
+The above results can be compared to check the similarity / differences.
+
+```{r}
+not_cancelled %>% count(tailnum,wt = distance)
+```
+
+
+```{r}
+not_cancelled %>% group_by(tailnum) %>% summarise(n = sum(distance))
+```
+
+
+3. Our definition of cancelled flights (is.na(dep_delay) | is.na(arr_delay)) is slightly suboptimal. Why? Which is the most important column?
+
+The most important column would be arr_delay.
+
+```{r}
+flights %>% filter(is.na(dep_delay),!is.na(arr_delay)) %>% select(dep_time,arr_time,sched_arr_time,dep_delay,arr_delay)
+```
+
+
+4. Look at the number of cancelled flights per day. Is there a pattern ? Is the proportion of cancelled flights related to the average delay ?
+
+```{r}
+flights %>% mutate(cancelled = (is.na(arr_delay) | is.na(dep_delay))) %>% group_by(year,month,day) %>% summarise(cancelled_mean = mean(cancelled), dep_delay_mean = mean(dep_delay, na.rm = TRUE)) %>% ggplot(aes(x = dep_delay_mean, y = cancelled_mean)) + geom_point() + geom_smooth()
+```
+
+
+5. Which carrier has the worst delays ? Challenge: can you disentangle the effects of bad airports vs bad carriers? Why/Why not ? (Hint: think about flights %>% group_by(carrier,dest) %>% summarise(n()))
+
+which carrier has the worst delays ?
+
+```{r}
+flights %>% group_by(carrier) %>% summarise(delay = mean(arr_delay,na.rm = TRUE)) %>% arrange(desc(delay))
+```
+
+The first carrier has the most average delay.
+
+```{r}
+airlines %>% filter(carrier == "F9")
+```
+
+
+6. What does the sort argument to count() do. When might you use it?
+
+```{r}
+flights %>% group_by(carrier) %>% count(dep_delay, sort = TRUE)
+```

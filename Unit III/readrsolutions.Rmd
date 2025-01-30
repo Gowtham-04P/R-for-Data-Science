@@ -1,0 +1,163 @@
+---
+title: "Readr solution"
+author: "Suganya"
+date: '2022-09-16'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+What function would you use to read a file where fields are separated with “|”?
+
+```{r}
+read_delim("a|b|c\n1|2|3\n4|5|6", delim = "|")
+```
+
+
+
+Apart from file, skip, and comment, what other arguments do read_csv() and read_tsv() have in common?
+
+read_csv() and read_tsv() have the same arguments. They only difference is that one is comma delimited, and the 
+
+other is tab delimited.
+
+3 – What are the most important arguments to read_fwf()?
+
+The most important argument is col_positions, which defines the column positions.
+
+4 – Sometimes strings in a CSV file contain commas. To prevent them from causing problems they need to be surrounded by a quoting character, like " or '. By convention, read_csv() assumes that the quoting character will be ", and if you want to change it you’ll need to use read_delim() instead. What arguments do you need to specify to read the following text into a data frame?
+
+```{r}
+read_csv("x,y\n1,'a,b'", quote = "'")
+```
+
+5 – Identify what is wrong with each of the following inline CSV files. What happens when you run the code?
+
+read_csv("a,b\n1,2,3\n4,5,6")
+
+Only two columns names are provided, so the values in the last column are dropped.
+
+read_csv("a,b,c\n1,2\n1,2,3,4")
+
+Only three column names are provided. The value in the last column in the last row is dropped, and NA is coerced in the third column of second row.
+
+read_csv("a,b\n\"1")
+
+The open quote \" is dropped because there is no paired close quote. There is only one value in the second row, so NA is coerced in the second column
+
+read_csv("a,b\n1,2\na,b")
+
+Since the second rows are strings, the entire columns are coerced into strings.
+
+read_csv("a;b\n1;3")
+
+read_csv() looks for commas, not semi-colons. Everything is treated as one column name and one value.
+
+
+
+
+
+
+1. What are the most important arguments to locale()?
+
+The locale object has arguments to set the following:
+
+date and time formats: date_names, date_format, and time_format
+time zone: tz
+numbers: decimal_mark, grouping_mark
+encoding: encoding
+
+2. What happens if you try and set decimal_mark and grouping_mark to the same character? What happens to the default
+value of grouping_mark when you set decimal_mark to ",“?
+
+What happens to the default value of decimal_mark when you set the grouping_mark to ".“?
+
+If the decimal and grouping marks are set to the same character, locale throws an error:
+
+```{r}
+locale(decimal_mark = ".", grouping_mark = ".")
+```
+
+I didn’t discuss the date_format and time_format options to locale(). What do they do? Construct an example that shows when they might be useful.
+
+```{r}
+locale_custom <- locale(date_format = "Day %d Mon %M Year %y",
+                 time_format = "Sec %S Min %M Hour %H")
+date_custom <- c("Day 01 Mon 02 Year 03", "Day 03 Mon 01 Year 01")
+parse_date(date_custom)
+```
+```{r}
+parse_date(date_custom, locale = locale_custom)
+```
+```{r}
+time_custom <- c("Sec 01 Min 02 Hour 03", "Sec 03 Min 02 Hour 01")
+parse_time(time_custom)
+```
+```{r}
+parse_time(time_custom, locale = locale_custom)
+```
+
+4. If you live outside the US, create a new locale object that encap‐
+sulates the settings for the types of files you read most com‐
+monly
+
+As an example, consider Australia. Most of the defaults values are valid, except that the date format is “(d)d/mm/yyyy”, meaning that January 2, 2006 is written as 02/01/2006.
+```{r}
+parse_date("02/01/2006")
+```
+
+To correctly parse Australian dates, define a new locale object.
+
+```{r}
+au_locale <- locale(date_format = "%d/%m/%Y")
+parse_date("02/01/2006", locale = au_locale)
+```
+
+What’s the difference between read_csv() and read_csv2()?
+
+The delimiter. The function read_csv() uses a comma, while read_csv2() uses a semi-colon (;). Using a semi-colon is useful when commas are used as the decimal point (as in Europe).
+
+
+What are the most common encodings used in Europe? What are the most common encodings used in Asia? Do some googling to find out.
+
+UTF-8 is standard now, and ASCII has been around forever.
+
+For the European languages, there are separate encodings for Romance languages and Eastern European languages using Latin script, Cyrillic, Greek, Hebrew, Turkish: usually with separate ISO and Windows encoding standards. There is also Mac OS Roman.
+
+For Asian languages Arabic and Vietnamese have ISO and Windows standards
+
+
+
+
+Generate the correct format string to parse each of the following dates and times:
+
+
+
+
+```{r}
+d1 <- "January 1, 2010"
+d2 <- "2015-Mar-07"
+d3 <- "06-Jun-2017"
+d4 <- c("August 19 (2015)", "July 1 (2015)")
+d5 <- "12/30/14" # Dec 30, 2014
+t1 <- "1705"
+t2 <- "11:15:10.12 PM"
+```
+
+```{r}
+parse_date(d1, "%B %d, %Y")
+
+parse_date(d2, "%Y-%b-%d")
+
+parse_date(d3, "%d-%b-%Y")
+
+parse_date(d4, "%B %d (%Y)")
+
+parse_date(d5, "%m/%d/%y")
+
+parse_time(t1, "%H%M")
+```
+

@@ -1,0 +1,320 @@
+---
+title: "Unit III-Solution"
+author: "Suganya"
+date: '2022-10-01'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+1.How can you tell if an object is a tibble? (Hint: try printing mtcars, which is a regular data frame).
+
+When  print mtcars, it prints all the columns
+
+But when we first convert mtcars to a tibble using as_tibble(), 
+
+it prints on the first ten observations. There are also some other differences in formatting of the printed data frame.
+
+```{r}
+
+
+```
+
+Use the function is_tibble() to check whether a data frame is a tibble or not. 
+
+The mtcars data frame is not a tibble.
+
+```{r}
+
+```
+
+But the diamonds and flights data are tibbles.
+
+```{r}
+is_tibble(ggplot2::diamonds) 
+```
+
+
+```{r}
+is_tibble(nycflights13::flights) 
+```
+ 
+
+```{r}
+is_tibble(as_tibble(mtcars)) 
+```
+ 
+
+More generally, you can use the class() function to find out the class of an object.
+
+```{r}
+class(mtcars) 
+```
+
+2. Compare and contrast the following operations on a data.frame and equivalent tibble. What is different? Why might
+
+the default data frame behaviors cause you frustration?
+
+```{r}
+df <- data.frame(abc = 1, xyz = "a") 
+df$x 
+df[, "xyz"] 
+df[, c("abc", "xyz")]
+```
+
+
+
+```{r}
+df <- data.frame(abc = 1, xyz = "a") 
+df=as_tibble(df)
+df$x 
+df[, "xyz"] 
+df[, c("abc", "xyz")]
+```
+
+3. If you have the name of a variable stored in an object, e.g. var <- "mpg", how can you extract the reference
+
+variable from a tibble?
+
+Use the double bracket, like var[[1]].
+
+Cannot use the dollar sign, because var$mpg would look for a column named mpg.
+
+4. Practice referring to non-syntactic names in the following data frame by:
+
+A. Extracting the variable called 1.
+
+For this example, create a dataset called exampe with columns named 1 and 2.
+
+```{r}
+
+```
+
+
+To extract the variable named 1:
+
+```{r}
+
+```
+
+
+B. Plotting a scatterplot of 1 vs 2.
+
+```{r}
+
+```
+
+
+Creating a new column called 3 which is 2 divided by 1.
+
+```{r}
+
+```
+
+
+Renaming the columns to one, two and three.
+
+```{r}
+
+```
+
+
+5. What does tibble::enframe() do? When might you use it?
+
+The function tibble::enframe() converts named vectors to a data frame with names and values
+
+```{r}
+
+```
+
+6. What option controls how many additional column names are printed at the footer of a tibble?
+
+The help page for the print() method of tibble objects is discussed in ?print.tbl. The n_extra argument determines
+
+the number of extra columns to print information for.
+```{r}
+library(nycflights13)
+```
+
+```{r}
+
+```
+
+
+1. What function would you use to read a file where fields are separated with “|”?
+
+```{r}
+
+```
+
+2. Apart from file, skip, and comment, what other arguments do read_csv() and read_tsv() have in common?
+
+Execute the command to know the remaining arguments:
+
+```{r}
+union(names(formals(read_csv)), names(formals(read_tsv))) 
+```
+col_names and col_types are used to specify the column names and how to parse the columns
+
+locale is important for determining things like the encoding and whether “.” or “,” is used as a decimal mark.
+
+na and quoted_na control which strings are treated as missing values when parsing vectors
+
+trim_ws trims whitespace before and after cells before parsing
+
+n_max sets how many rows to read
+
+guess_max sets how many rows to use when guessing the column type
+
+progress determines whether a progress bar is shown
+
+3. What are the most important arguments to read_fwf()?
+
+The most important argument to read_fwf() which reads “fixed-width formats”, is col_positions which tells the
+
+function where data columns begin and end.
+
+4. Sometimes strings in a CSV file contain commas. To prevent them from causing problems they need to be surrounded
+
+by a quoting character, like " or '. By convention, read_csv() assumes that the quoting character will be ", and if
+
+you want to change it you’ll need to use read_delim() instead. What arguments do you need to specify to read the
+
+following text into a data frame?
+
+ "x,y\n1,'a,b'“
+ 
+For read_delim(), need to specify a delimiter, in this case ",", and a quote argument.
+
+```{r}
+
+
+```
+ 
+5. Identify what is wrong with each of the following inline CSV files.
+
+ What happens when you run the code?
+ 
+```{r}
+read_csv("a,b\n1,2,3\n4,5,6") 
+```
+ 
+ 
+
+
+```{r}
+read_csv("a,b,c\n1,2\n1,2,3,4") 
+```
+
+
+
+```{r}
+read_csv("a,b\n\"1") 
+```
+
+
+```{r}
+read_csv("a,b\n1,2\na,b")
+
+
+```
+
+```{r}
+read_csv("a;b\n1;3")
+
+```
+
+
+
+1. What are the most important arguments to locale()?
+
+The locale object has arguments to set the following:
+
+date and time formats: date_names, date_format, and time_format
+time zone: tz
+numbers: decimal_mark, grouping_mark
+encoding: encoding
+
+
+
+2. What happens if you try and set decimal_mark and grouping_mark to the same character? What happens to the default
+value of grouping_mark when you set decimal_mark to ",“?
+
+What happens to the default value of decimal_mark when you set the grouping_mark to ".“?
+
+If the decimal and grouping marks are set to the same character, locale throws an error:
+
+
+
+```{r}
+locale(decimal_mark = ".", grouping_mark = ".")
+```
+
+I didn’t discuss the date_format and time_format options to locale(). What do they do? Construct an example that shows when they might be useful.
+
+```{r}
+locale_custom <- locale(date_format = "Day %d Mon %M Year %y",
+                 time_format = "Sec %S Min %M Hour %H")
+date_custom <- c("Day 01 Mon 02 Year 03", "Day 03 Mon 01 Year 01")
+parse_date(date_custom)
+```
+```{r}
+parse_date(date_custom, locale = locale_custom)
+```
+```{r}
+time_custom <- c("Sec 01 Min 02 Hour 03", "Sec 03 Min 02 Hour 01")
+parse_time(time_custom)
+```
+```{r}
+parse_time(time_custom, locale = locale_custom)
+```
+
+4. If you live outside the US, create a new locale object that encap‐
+sulates the settings for the types of files you read most com‐
+monly
+
+As an example, consider Australia. Most of the defaults values are valid, except that the date format is “(d)d/mm/yyyy”, meaning that January 2, 2006 is written as 02/01/2006.
+```{r}
+parse_date("02/01/2006")
+```
+
+To correctly parse Australian dates, define a new locale object.
+
+```{r}
+au_locale <- locale(date_format = "%d/%m/%Y")
+parse_date("02/01/2006", locale = au_locale)
+```
+
+What’s the difference between read_csv() and read_csv2()?
+
+The delimiter. The function read_csv() uses a comma, while read_csv2() uses a semi-colon (;). Using a semi-colon is useful when commas are used as the decimal point (as in Europe).
+
+
+What are the most common encodings used in Europe? What are the most common encodings used in Asia? Do some googling to find out.
+
+UTF-8 is standard now, and ASCII has been around forever.
+
+For the European languages, there are separate encodings for Romance languages and Eastern European languages using Latin script, Cyrillic, Greek, Hebrew, Turkish: usually with separate ISO and Windows encoding standards. There is also Mac OS Roman.
+
+For Asian languages Arabic and Vietnamese have ISO and Windows standards
+
+
+
+
+Generate the correct format string to parse each of the following dates and times:
+
+
+
+
+```{r}
+d1 <- "January 1, 2010"
+d2 <- "2015-Mar-07"
+d3 <- "06-Jun-2017"
+d4 <- c("August 19 (2015)", "July 1 (2015)")
+d5 <- "12/30/14" # Dec 30, 2014
+t1 <- "1705"
+t2 <- "11:15:10.12 PM"
+```
