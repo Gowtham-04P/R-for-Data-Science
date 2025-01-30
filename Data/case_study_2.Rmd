@@ -1,0 +1,71 @@
+```{r}
+library(tidyverse)
+```
+
+```{r}
+setwd("D:/MBA_23_24_ODD/R Data")
+```
+
+```{r}
+ds<-read.csv("marks.csv")
+```
+
+```{r}
+ds
+```
+
+
+```{r}
+ds %>% 
+  select(REG_NO,DMA) 
+```
+
+```{r}
+ds %>% 
+  filter(DMA>80)
+```
+
+```{r}
+ds %>% 
+  filter(Direct_Tax>80)
+```
+
+```{r}
+filter(ds,Tableau>80, DMA>80, Direct_Tax>80 )
+```
+
+```{r}
+filter(ds, (DMA>80 & DMA <90)) %>% arrange(desc(DMA)) 
+```
+
+```{r}
+mutate(ds,
+       total_marks = Tableau + Direct_Tax + DMA
+       )
+```
+```{r}
+mutate(ds,
+       total_marks = Tableau + Direct_Tax + DMA
+       ) %>% arrange(desc(total_marks))
+```
+
+```{r}
+ds %>%
+  group_by(Gender) %>%
+  summarise(count=n())
+```
+
+```{r}
+  ds %>%
+  group_by(Gender) %>%
+  summarise(count=n())
+```
+
+```{r}
+ds %>%
+  filter(DMA>80) %>%
+  group_by(Gender) %>%
+  summarise(count=n())
+
+```
+

@@ -1,0 +1,569 @@
+---
+title: 'Unit - I : Data Visualization with ggplot2'
+author: 'Teacher : '
+output: html_document
+---
+
+### UNIT-WISE LECTURE PRESENTATION RMD
+
+#### Unit - 1 - DATA VIZUALIZATION WITH ggplot2
+
+##### INTRODUCTION
+
+  1. What is Data Science ?   
+         
+     Data science is an exciting discipline that allows you to turn raw data into understanding,insight and knowledge.
+  
+  2. What is R ? Rstudio?
+     
+     - R is a programming Language. 
+     - It is Mainly used for Statistics Communication.
+     - R studio is an IDE (Integrated Development Environment).
+     
+  3.What is TidyVerse ?   
+     
+     - Tidyverse is a library. 
+     - It has collection of R packages designed for Data Science.
+     
+  4.How to Install a package ?
+
+```{r eval=FALSE, include=FALSE, paged.print=FALSE}
+install.packages("tidyverse")
+```
+
+  5.How to Attach a package to the current R session?
+
+```{r include=FALSE}
+library(tidyverse)
+```
+
+  6.How to Add dataset into R(mpg dataset)?
+
+```{r}
+library(tidyverse)
+```
+```{r}
+data(mpg)
+```
+
+
+7. Data exploration of mpg dataset ?
+
+```{r}
+mpg
+```
+
+      a. View() - Invoke a spreadsheet-style data viewer on a matrix-like R object. 
+
+```{r include=FALSE}
+library(tidyverse)
+data(mpg)
+View(mpg)
+
+```
+
+
+     b. head() - returns the first 6 rows of the data frame
+     
+```{r}
+head(mpg)
+
+```
+
+
+     c. tail() - returns the last 6 rows of the data frame
+     
+```{r}
+tail(mpg)
+```
+
+
+     d. dim() - returns the dimensions of the data frame
+     
+```{r}
+dim(mpg)
+```
+
+
+     e. colnames() - returns the column names of the data frame
+
+```{r}
+colnames(mpg)
+```
+
+     f. rownames() - returns the row names of the data frame
+     
+```{r}
+rownames(mpg)
+```
+
+
+8.How to get the working directory in R? getwd()
+
+```{r}
+getwd()
+```
+
+
+9.How to set the working directory in R? setwd()
+
+```{r}
+#setwd("/home/sathish/r4ds")
+```
+
+
+10.ggplot() function
+
+```{r}
+ggplot(data=mpg) + 
+  geom_point(mapping=aes(x=displ,y=hwy))
+```
+  
+###### Add libraries
+
+```{r warning=FALSE, include=FALSE}
+library(tidyverse)
+```
+
+
+##### AESTHETIC MAPPINGS
+
+###### Question: 
+
+`do cars with big engines use more fuel than cars with small engines?`
+
+```{r}
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+**Observations:**
+
+> as engine size increases, we see mileage decreasing
+> it holds a negative relationship
+
+###### Question : 
+
+`In The above plot, one group of points(highlighted in red) seems to fall outside of the linear trend. These cars have a higher mileage than you might expect. How can you explain these cars?`
+
+**aesthetic** An aesthetic is a visual property of the objects in your plot. viz.,size, shape and color.
+
+```{r}
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, color = class))
+```
+
+
+```{r message=FALSE, warning=FALSE}
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, size = class))
+```
+
+```{r message=FALSE, warning=FALSE}
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+```
+
+**Observations: **
+
+> there are only six shapes. 
+> suv class have not been assigned any shape. 
+> always by default, six shapes alone get assigned.
+
+
+```{r message=FALSE, warning=FALSE}
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+```
+
+
+```{r}
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy), color = 'red')
+```
+
+**Observations:**
+
+> here the color doesn't convey information about a variable, but only changes the appearance of the plot. 
+> it is not an aesthetic property of the graph.
+
+##### GEOMETRIC OBJECTS
+
+###### Question: How are these plots similar?
+
+```{r}
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+```{r}
+ggplot(data = mpg) + geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+
+##### geom_smooth() linetype argument
+
+```{r}
+count(mpg,drv)
+```
+
+
+```{r}
+ggplot(data = mpg) + geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+```
+
+```{r}
+ggplot(data = mpg) + geom_smooth(mapping = aes(x = displ, y = hwy))
+
+ggplot(data = mpg) + geom_smooth(mapping = aes(x = displ, y = hwy, group = drv))
+
+ggplot(data = mpg) + geom_smooth(mapping = aes(x = displ, y = hwy, color = drv))
+
+ggplot(data = mpg) + geom_smooth(mapping = aes(x = displ, y = hwy, color = drv), show.legend = FALSE)
+```
+
+- linetype argument : displays regression line for each category of the variable with a legend
+- group argument : displays same line type for each of the category but different regression lines
+- se argument: confidence interval
+- geom_smooth() : function to add best fit regression line in the layer of ggplot()
+- color: displays regression line with different color legends for each category of the variable
+
+###### To display multiple geoms in the same plot
+
+- ggplot(data = mpg) : created an empty canvas
+- + geom_point() : created a scatterplot 
+- + geom_smooth(): created a line (regression line)
+
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ,y = hwy)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+###### to remove the confidence interval around the regression line
+
+```{r}
+ggplot(data = mpg) + geom_smooth(mapping = aes(x = displ,y = hwy), se = FALSE)
+```
+
+###### global mappings vs local mappings
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth()
+```
+
+###### global mappings + local mappings
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth()
+```
+
+###### local data argument in geom_smooth()
+
+```{r}
+mpg_subcompact <- filter(mpg,class == "subcompact")
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth(data = mpg_subcompact, se = FALSE)
+```
+
+```{r}
+count(mpg,class)
+```
+
+
+###### to understand how filter works
+
+- filter() function from dplyr package
+
+```{r}
+filter(mpg, class == "suv")
+```
+
+
+##### STATISTICAL TRANSFORMATIONS
+
+###### diamonds dataset
+
+```{r}
+data(diamonds)
+```
+
+###### dataframe - diamonds dataset
+
+```{r}
+diamonds
+```
+
+**Observations on dataset diamonds:**
+
+- data comprises of "prices of 50,000 round cut diamonds"
+- variables are 
+
+```{r}
+colnames(diamonds)
+```
+
+  - has a dimension of 53940 x 10
+  
+```{r}
+dim(diamonds)
+```
+
+  - min and max values of price variable in diamonds dataset
+  
+```{r}
+range(diamonds$price)
+
+min(diamonds$price)
+
+max(diamonds$price)
+```
+
+###### to select a single variable from the entire dataset
+
+```{r eval=FALSE, include=FALSE}
+diamonds$color
+```
+
+  - a *geom* is the geometrical object that a plot uses to represent data.
+
+
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut))
+```
+
+  - y variable - count ( statistical transformation )
+
+```{r}
+count(diamonds, cut)
+```
+
+```{r}
+ggplot(data = diamonds) +
+  stat_count(mapping = aes(x = cut))
+```
+
+###### Creating a new tibble using tribble() function
+  
+    - tribble() is used to create a new tibble for a smaller dataset or tables of data.
+    - tibble is a data frame. It just a cleaner representation of a data frame.
+    - tibble is different from a traditional data frame in two things (printing and subsetting)
+
+```{r}
+demo <- tribble(
+  ~a, ~b,
+  "bar_1", 20,
+  "bar_2",30,
+  "bar_3",40
+)
+```
+
+```{r}
+demo
+```
+
+```{r}
+ggplot(data = demo) +
+  geom_bar(mapping = aes(x = a))
+```
+
+```{r}
+count(demo,a)
+```
+
+
+```{r}
+ggplot(data = demo) +
+  geom_bar(mapping = aes(x = a,y = b), stat = "identity")
+```
+
+ - stat argument with value "identity" helps us to map the height of the bars  with the raw values of a y variable.
+ 
+###### overriding the default mapping from transformed variables to aesthetics
+
+  - changing group values doesn't make any changes.
+  - but removing group = 1 makes the bars to have same heights (prop = 1.0)
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+```
+
+###### stat_summary()
+
+```{r}
+#ggplot(data = diamonds) +
+  #stat_summary(mapping = aes(x = cut, y = depth),
+               #fun.ymin = min,
+               #fun.ymax = max,
+               #fun.y = median())
+```
+
+**Some of the stat functions:**
+
+```{r}
+range(diamonds$depth)
+min(diamonds$depth)
+max(diamonds$depth)
+median(diamonds$depth)
+```
+
+```{r}
+diamonds %>% group_by(cut) %>% summarize(min = min(depth),max = max(depth),med = median(depth))
+```
+
+```{r}
+good <- diamonds %>% filter(cut == "Good")
+```
+
+
+##### POSITION ADJUSTMENTS
+
+###### Color a bar chart using either the color aesthetic, or fill
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, color = cut))
+
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = cut))
+```
+
+###### Stacked bars
+
+  - What happens when we map the fill aesthetic to another variable , like clarity
+  
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+```
+
+```{r}
+diamonds %>% filter(cut == "Ideal" & clarity == "IF")
+```
+
+
+###### Non-Stacked Bars
+
+  - when we don't need stacked bars, we can use one of the three options
+    
+        1. position = "identity" -> will place each object exactly where it falls in the context of the graph.
+        
+```{r}
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) +
+  geom_bar(alpha = 1/5)
+
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) +
+  geom_bar(alpha = 1/5, position = "identity")
+```
+        
+  - slightly transparent = setting alpha to a small value or
+  
+```{r}
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) +
+  geom_bar(alpha = 1/5, position = "identity")
+```
+  
+  - completely transparent = setting fill = NA
+  
+```{r}
+ggplot(data = diamonds, mapping = aes(x = cut, color = clarity)) +
+  geom_bar(fill = NA, position = "identity")
+```
+  
+        
+        2. position = "fill" -> works like stacking, but makes each set of stacked bars the same height
+        
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "fill")
+```
+        
+        
+        3. position = "dodge" -> places overlapping objects directly beside one another.
+                              -> easier to compare individual values
+
+```{r}
+
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge")
+
+```
+
+
+###### The Problem of *Overplotting*
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+  - plot displays only 126 points, even though there are 234 observations in the dataset
+  - when points overlap each other, it is called "overplotting"
+  
+  - inorder to solve the overplotting problem, we can set the position argument with the value "jitter" which adds some random noise to each data point.
+  
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
+```
+  
+```{r}
+ggplot(data = mpg) +
+  geom_jitter(mapping = aes(x = displ, y = hwy))
+```
+
+
+##### COORDINATE SYSTEMS
+
+1. coord_flip() switches the x-axes and y-axes
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) +
+  geom_boxplot() +
+  coord_flip()
+```
+
+2. coord_quickmap() -> sets the aspect ratio correctly for maps
+
+```{r}
+
+```
+
+
+3. coord_polar() -> uses polar coordinates. It is most commonly used in pie charts.
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = cut), show.legend = FALSE, width = 1)+
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL) + 
+  coord_flip()
+
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = cut), show.legend = TRUE, width = 1)+
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL) +
+  coord_flip() +
+  coord_polar(theta = "x")
+
+```
+
+
+```{r}
+count(diamonds,cut)
+```
+
+
+```{r}
+ggplot(data = diamonds) + geom_bar(mapping = aes(x = cut, fill = cut), width = 1) + coord_polar()
+```
+
+
